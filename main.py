@@ -16,6 +16,7 @@ RED = (255, 0, 0)
 BLUE = (51, 153, 255)
 BG_COLOR = (242, 159, 47)
 GRID_COLOR = (98, 85, 64)
+GREY = (127, 127, 127)
 
 TOP_PANEL = 80
 BOTTOM_PANEL = 60
@@ -36,17 +37,17 @@ PLAYER_X = 'X'
 PLAYER_O = 'O'
 
 X_IMAGE = pygame.transform.scale(pygame.image.load(
-    'X.png'), (CELL_SIZE - 50, CELL_SIZE - 50))
+    'assets/images/X.png'), (CELL_SIZE - 50, CELL_SIZE - 50))
 O_IMAGE = pygame.transform.scale(pygame.image.load(
-    'O.png'), (CELL_SIZE - 50, CELL_SIZE - 50))
+    'assets/images/O.png'), (CELL_SIZE - 50, CELL_SIZE - 50))
 
 HOME_IMAGE_BLACK = pygame.transform.scale(
-    pygame.image.load('Home_black.png'), (25, 25))
+    pygame.image.load('assets/images/Home_black.png'), (25, 25))
 HOME_IMAGE_WHITE = pygame.transform.scale(
-    pygame.image.load('Home_white.png'), (25, 25))
+    pygame.image.load('assets/images/Home_white.png'), (25, 25))
 
 TITLE_SCREEN_IMAGE = pygame.transform.scale(
-    pygame.image.load('Title_screen.png'), (200, 200))
+    pygame.image.load('assets/images/Title_screen.png'), (200, 200))
 
 FPS = 30
 
@@ -89,7 +90,8 @@ class Text_Button():
     def draw(self, surface):
         pygame.draw.rect(surface, self.bg_color, self.rect,
                          border_radius=self.radius)
-        font = pygame.font.Font('Nunito-Black.ttf', self.text_size)
+        font = pygame.font.Font(
+            'assets/fonts/Nunito-Black.ttf', self.text_size)
         text = font.render(self.text, 1, self.text_color)
         surface.blit(text, (self.x + self.width//2 - text.get_width() //
                      2, self.y + self.height//2 - text.get_height()//2))
@@ -176,8 +178,6 @@ class Game:
         if not self.gameover:
             piece_placed = self.board.place_piece(pos, self.turn)
             if piece_placed:
-                if self.x_wins == 3 or self.o_wins == 3:
-                    self.match_over = True
                 self.winner = self.board.check_win(self.turn)
                 self.change_turn()
                 self.check_for_gameover()
@@ -200,7 +200,7 @@ class Game:
                 self.game_draw = True
 
     def draw_gameover(self, surface):
-        if self.gameover and not self.match_over:
+        if self.gameover:
             color = RED if self.turn == PLAYER_O else BLUE
             if self.direction == (1, 0):
                 pygame.draw.line(surface, color, (GAMEBOARD_X + self.win_pos[0][0] * CELL_SIZE + PADDING, GAMEBOARD_Y + self.win_pos[0][1] * CELL_SIZE + CELL_SIZE//2), (
@@ -235,7 +235,7 @@ def draw_top_panel(game):
     x_image = pygame.transform.scale(X_IMAGE, (50, 50))
     o_image = pygame.transform.scale(O_IMAGE, (50, 50))
 
-    font = pygame.font.Font('Nunito-Black.ttf', 60)
+    font = pygame.font.Font('assets/fonts/Nunito-Black.ttf', 60)
 
     x_label = font.render(str(game.x_wins), 1, BLACK)
     o_label = font.render(str(game.o_wins), 1, BLACK)
@@ -252,7 +252,7 @@ def draw_top_panel(game):
     pygame.draw.rect(WIN, BLACK, (3, 3, WIDTH - 5, TOP_PANEL - 5), 3, 20)
     pygame.draw.rect(WIN, BLACK, (140, 3, WIDTH - 285, TOP_PANEL - 5), 3)
 
-    text_font = pygame.font.Font('Nunito-Black.ttf', 30)
+    text_font = pygame.font.Font('assets/fonts/Nunito-Black.ttf', 30)
     text = ''
 
     if game.gameover:
@@ -270,9 +270,35 @@ def draw_top_panel(game):
 
 def draw(game, board, buttons):
     WIN.fill(BG_COLOR)
+
     if not game.match_over:
         board.draw(WIN)
-    game.draw_gameover(WIN)
+        game.draw_gameover(WIN)
+    else:
+        text_font = pygame.font.Font('assets/fonts/Nunito-Black.ttf', 50)
+        message_font = pygame.font.Font('assets/fonts/Nunito-Black.ttf', 25)
+        message = message_font.render(
+            "PRESS NEW GAME TO PLAY AGAIN.", 1, BLACK)
+
+        if game.x_wins == 3:
+            text = text_font.render("WINNER", 1, BLUE)
+            WIN.blit(pygame.transform.scale(X_IMAGE, (150, 150)),
+                     (WIDTH//2 - 75, 200))
+            WIN.blit(text, (WIDTH//2 - text.get_width()//2, 120))
+            message1 = message_font.render(
+                "X wins the game by scoring 3 point.", 1, BLUE)
+            WIN.blit(message1, (WIDTH//2 - message1.get_width()//2, 375))
+            WIN.blit(message, (WIDTH//2 - message.get_width()//2, 420))
+
+        else:
+            text = text_font.render("WINNER", 1, RED)
+            WIN.blit(pygame.transform.scale(O_IMAGE, (150, 150)),
+                     (WIDTH//2 - 75, 200))
+            WIN.blit(text, (WIDTH//2 - text.get_width()//2, 120))
+            message1 = message_font.render(
+                "O wins the game by scoring 3 point.", 1, RED)
+            WIN.blit(message1, (WIDTH//2 - message1.get_width()//2, 375))
+            WIN.blit(message, (WIDTH//2 - message.get_width()//2, 420))
 
     for button in buttons:
         button.draw(WIN)
@@ -323,6 +349,9 @@ def main():
                 button.text_color = WHITE
                 button.image = HOME_IMAGE_WHITE
 
+        if reset_button.is_hovering() and game.match_over:
+            reset_button.bg_color = GREY
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -335,12 +364,15 @@ def main():
 
                 if col != -1 and row != -1:
                     game.place_piece((col, row))
+                    if game.x_wins == 3 or game.o_wins == 3:
+                        game.match_over = True
 
                 if home_button.is_hovering():
                     run = False
 
                 if reset_button.is_hovering():
-                    game.reset_board()
+                    if not game.match_over:
+                        game.reset_board()
 
                 if new_game_button.is_hovering():
                     game.reset_board()
@@ -361,10 +393,10 @@ def main_menu():
     quit_button = Text_Button(
         (WIDTH//2 - 400//2, HEIGHT - 120), 400, 60, 'QUIT', WHITE, RED, 30, 10)
 
-    font = pygame.sysfont.Font('Nunito-Black.ttf', 20)
+    font = pygame.sysfont.Font('assets/fonts/Nunito-Black.ttf', 20)
     text = font.render('FIRST ONE TO SCORE 3 POINTS WINS!', 1, BLACK)
 
-    title_font = pygame.sysfont.Font('Nunito-Black.ttf', 50)
+    title_font = pygame.sysfont.Font('assets/fonts/Nunito-Black.ttf', 50)
     title = title_font.render('TIC TAC TOE', 1, BLACK)
 
     while run:
