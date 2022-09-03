@@ -49,6 +49,16 @@ HOME_IMAGE_WHITE = pygame.transform.scale(
 TITLE_SCREEN_IMAGE = pygame.transform.scale(
     pygame.image.load('assets/images/Title_screen.png'), (200, 200))
 
+BUTTON_PRESS_SFX = pygame.mixer.Sound("assets/sounds/Button_Press.wav")
+WIN_SFX = pygame.mixer.Sound("assets/sounds/Win.wav")
+PLACE_PIECE_SFX = pygame.mixer.Sound("assets/sounds/Place_Piece.wav")
+DRAW_SFX = pygame.mixer.Sound("assets/sounds/Draw.mp3")
+
+BUTTON_PRESS_SFX.set_volume(1)
+WIN_SFX.set_volume(1)
+DRAW_SFX.set_volume(1)
+PLACE_PIECE_SFX.set_volume(1)
+
 FPS = 30
 
 
@@ -185,6 +195,7 @@ class Game:
     def check_for_gameover(self):
         if self.x_wins < 3 and self.o_wins < 3:
             if self.winner != None:
+                WIN_SFX.play()
                 self.win_pos = self.winner[1]
                 self.direction = self.winner[2]
                 self.winner = self.winner[0]
@@ -196,8 +207,12 @@ class Game:
                     self.o_wins += 1
 
             elif self.board.filled:
+                DRAW_SFX.play()
                 self.gameover = True
                 self.game_draw = True
+
+            else:
+                PLACE_PIECE_SFX.play()
 
     def draw_gameover(self, surface):
         if self.gameover:
@@ -368,13 +383,16 @@ def main():
                         game.match_over = True
 
                 if home_button.is_hovering():
+                    BUTTON_PRESS_SFX.play()
                     run = False
 
                 if reset_button.is_hovering():
+                    BUTTON_PRESS_SFX.play()
                     if not game.match_over:
                         game.reset_board()
 
                 if new_game_button.is_hovering():
+                    BUTTON_PRESS_SFX.play()
                     game.reset_board()
                     game.restart()
 
@@ -432,9 +450,11 @@ def main_menu():
                 close_window = True
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if quit_button.is_hovering():
+                    BUTTON_PRESS_SFX.play()
                     run = False
                     close_window = True
                 if play_button.is_hovering():
+                    BUTTON_PRESS_SFX.play()
                     run = False
         pygame.display.update()
 
