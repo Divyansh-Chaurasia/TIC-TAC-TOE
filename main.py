@@ -14,6 +14,8 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 BLUE = (51, 153, 255)
+GREEN = (0, 175, 0)
+PURPLE = (170, 0, 165)
 BG_COLOR = (242, 159, 47)
 GRID_COLOR = (98, 85, 64)
 GREY = (127, 127, 127)
@@ -48,6 +50,9 @@ HOME_IMAGE_WHITE = pygame.transform.scale(
 
 TITLE_SCREEN_IMAGE = pygame.transform.scale(
     pygame.image.load('assets/images/Title_screen.png'), (200, 200))
+
+CROWN_IMAGE = pygame.transform.scale(
+    pygame.image.load('assets/images/crown.png'), (175, 120))
 
 BUTTON_PRESS_SFX = pygame.mixer.Sound("assets/sounds/Button_Press.wav")
 WIN_SFX = pygame.mixer.Sound("assets/sounds/Win.wav")
@@ -290,28 +295,29 @@ def draw(game, board, buttons):
         board.draw(WIN)
         game.draw_gameover(WIN)
     else:
+        WIN.blit(CROWN_IMAGE, (20, 200))
+        WIN.blit(CROWN_IMAGE, (WIDTH - CROWN_IMAGE.get_width() - 20, 200))
         text_font = pygame.font.Font('assets/fonts/Nunito-Black.ttf', 50)
         message_font = pygame.font.Font('assets/fonts/Nunito-Black.ttf', 25)
         message = message_font.render(
             "PRESS NEW GAME TO PLAY AGAIN.", 1, BLACK)
+        text = text_font.render("WINNER", 1, PURPLE)
 
         if game.x_wins == 3:
-            text = text_font.render("WINNER", 1, BLUE)
             WIN.blit(pygame.transform.scale(X_IMAGE, (150, 150)),
                      (WIDTH//2 - 75, 200))
             WIN.blit(text, (WIDTH//2 - text.get_width()//2, 120))
             message1 = message_font.render(
-                "X wins the game by scoring 3 point.", 1, BLUE)
+                "X wins the game by scoring 3 point.", 1, PURPLE)
             WIN.blit(message1, (WIDTH//2 - message1.get_width()//2, 375))
             WIN.blit(message, (WIDTH//2 - message.get_width()//2, 420))
 
         else:
-            text = text_font.render("WINNER", 1, RED)
             WIN.blit(pygame.transform.scale(O_IMAGE, (150, 150)),
                      (WIDTH//2 - 75, 200))
             WIN.blit(text, (WIDTH//2 - text.get_width()//2, 120))
             message1 = message_font.render(
-                "O wins the game by scoring 3 point.", 1, RED)
+                "O wins the game by scoring 3 point.", 1, PURPLE)
             WIN.blit(message1, (WIDTH//2 - message1.get_width()//2, 375))
             WIN.blit(message, (WIDTH//2 - message.get_width()//2, 420))
 
@@ -406,7 +412,7 @@ def main_menu():
     clock = pygame.time.Clock()
 
     play_button = Text_Button(
-        (WIDTH//2 - 400//2, HEIGHT - 200), 400, 60, 'PLAY', WHITE, BLACK, 30, 10)
+        (WIDTH//2 - 400//2, HEIGHT - 200), 400, 60, 'PLAY', WHITE, GREEN, 30, 10)
 
     quit_button = Text_Button(
         (WIDTH//2 - 400//2, HEIGHT - 120), 400, 60, 'QUIT', WHITE, RED, 30, 10)
@@ -420,14 +426,12 @@ def main_menu():
     while run:
         clock.tick(FPS)
         WIN.fill(BG_COLOR)
-        play_button.draw(WIN)
-        quit_button.draw(WIN)
 
         if play_button.is_hovering():
             play_button.bg_color = WHITE
-            play_button.text_color = BLACK
+            play_button.text_color = GREEN
         else:
-            play_button.bg_color = BLACK
+            play_button.bg_color = GREEN
             play_button.text_color = WHITE
 
         if quit_button.is_hovering():
@@ -437,7 +441,15 @@ def main_menu():
             quit_button.bg_color = RED
             quit_button.text_color = WHITE
 
-        WIN.blit(title, (WIDTH//2 - title.get_width()//2, 20))
+        pygame.draw.circle(WIN, BLACK, (WIDTH//2, HEIGHT + 680), 778)
+        pygame.draw.circle(WIN, PURPLE, (WIDTH//2, HEIGHT + 680), 775)
+        pygame.draw.circle(WIN, BLACK, (WIDTH//2, -680), 778)
+        pygame.draw.circle(WIN, PURPLE, (WIDTH//2, -680), 775)
+
+        play_button.draw(WIN)
+        quit_button.draw(WIN)
+
+        WIN.blit(title, (WIDTH//2 - title.get_width()//2, 15))
 
         WIN.blit(TITLE_SCREEN_IMAGE, (WIDTH//2 -
                  TITLE_SCREEN_IMAGE.get_width()//2, 100))
